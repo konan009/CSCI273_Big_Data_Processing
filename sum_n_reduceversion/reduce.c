@@ -2,20 +2,23 @@
 #include <mpi.h>
 
 int main(int argc, char *argv[]) {
-    MPI_Init(&argc, &argv);
-
     int rank, size;
+
+    MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    int local_value = rank; 
-    int total_sum = 0;
+    int my_rank = rank; 
+    int reduction_result = 0;
 
     printf("[Process %.2d] Started \n", rank );
-    MPI_Allreduce(&local_value, &total_sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+
+    MPI_Reduce(&my_rank, &reduction_result, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
+
     if ( rank == 0 ){
-      printf("[Process %.2d] Total Sum : %d\n", rank, total_sum);
+      printf("[Process %.2d] Total Sum : %d\n", rank, reduction_result);
     }
+
     printf("[Process %.2d] Ended \n", rank );
     MPI_Finalize();
     return 0;
