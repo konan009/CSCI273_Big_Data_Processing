@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
+    printf("[Process %.2d] Starting \n",rank);
     /* Calculate the rank of the next process in the ring.  Use the
        modulus operator so that the last process "wraps around" to
        rank zero. */

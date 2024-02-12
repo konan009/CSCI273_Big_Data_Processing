@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
    
    next = (rank + 1) % size;
    prev = (rank + size - 1) % size;
-   printf("[Process %.2d] Starting \n",rank,prev);
+   printf("[Process %.2d] Starting \n",rank);
    float pi = 0.0;
    if (0 == rank) {
       float x_mid = (rank + 0.5) * delta_x;
