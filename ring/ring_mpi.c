@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2004-2006 The Trustees of Indiana University and Indiana
- *                         University Research and Technology
- *                         Corporation.  All rights reserved.
- * Copyright (c) 2006      Cisco Systems, Inc.  All rights reserved.
- *
- * Simple ring test program in C.
- */
-
 #include <stdio.h>
 #include "mpi.h"
 
@@ -64,8 +55,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    /* The last process does one extra send to process 0, which needs
-    to be received before the program can exit */
+    /* The last process accepts the last message that need to be received */
     if ((10 % size + 1) == rank) {
         printf("[Process %d] Waiting to receive message from Process %d to end.\n",rank,prev);
         MPI_Recv(&message, 1, MPI_INT, prev, tag, MPI_COMM_WORLD,MPI_STATUS_IGNORE);

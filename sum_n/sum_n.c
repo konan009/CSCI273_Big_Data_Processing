@@ -29,14 +29,14 @@ int main(int argc, char *argv[])
     next = (rank + 1) % size;
     prev = (rank + size - 1) % size;
 
-    printf("[Process %.2d] Process %.2d starting..\n",rank,prev);
+    printf("[Process %.2d] Starting\n",rank);
     if (0 == rank) {
         int sum = rank;
         printf("[Process %.2d] Sending sum %.2d to process %.2d \n",rank,sum,next);
         MPI_Send(&sum, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
     }
 
-   printf("[Process %.2d] Waiting Process %.2d to send a message \n",rank,prev);
+   printf("[Process %.2d] Waiting message from %.2d \n",rank,prev);
    MPI_Recv(&sum, 1, MPI_INT, prev, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
    printf("[Process %.2d] Message received \n",rank);
    sum += rank;
@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
       MPI_Send(&sum, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
    }
 
+   printf("[Process %.2d] Sum %.2d\n",rank,sum);
    printf("[Process %.2d] Ended \n",rank);
    /* All done */
    MPI_Finalize();
