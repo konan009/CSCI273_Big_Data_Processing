@@ -29,7 +29,8 @@ int main(int argc, char *argv[])
     next = (rank + 1) % size;
     prev = (rank + size - 1) % size;
 
-    printf("[Process %.2d] Starting\n",rank);
+    printf("[Process %.2d] Starting \n",rank);
+    
     if (0 == rank) {
         int sum = rank;
         printf("[Process %.2d] Sending sum %.2d to process %.2d \n",rank,sum,next);

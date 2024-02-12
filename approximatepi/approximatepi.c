@@ -11,17 +11,16 @@ int main(int argc, char *argv[])
     MPI_Init(&argc, &argv);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-
    /* 
       Calculate the rank of the next process in the ring.  Use the
       modulus operator so that the last process "wraps around" to
       rank zero. 
    */
+   printf("[Process %.2d] Starting \n",rank);
+
    float delta_x = 1.0 / (float)size;
-   
    next = (rank + 1) % size;
    prev = (rank + size - 1) % size;
-   printf("[Process %.2d] Starting \n",rank);
    float pi = 0.0;
    if (0 == rank) {
       float x_mid = (rank + 0.5) * delta_x;

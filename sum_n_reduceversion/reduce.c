@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     int my_rank = rank; 
     int reduction_result = 0;
 
-    printf("[Process %.2d] Started \n", rank );
+    printf("[Process %.2d] Starting \n",rank);
 
     MPI_Reduce(&my_rank, &reduction_result, 1, MPI_INT, MPI_SUM, 0, MPI_COMM_WORLD);
 
