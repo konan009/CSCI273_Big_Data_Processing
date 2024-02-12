@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
       MPI_Send(&sum, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
    }
 
-   printf("[Process %.2d] Process ended \n",rank);
+   printf("[Process %.2d] Ended \n",rank);
    /* All done */
    MPI_Finalize();
    return 0;

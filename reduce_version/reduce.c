@@ -9,12 +9,12 @@ int main(int argc, char *argv[]) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     int local_value = rank; 
-    int global_sum = 0;
+    int total_sum = 0;
 
     printf("[Process %.2d] Started \n", rank );
-    MPI_Allreduce(&local_value, &global_sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(&local_value, &total_sum, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
     if ( rank == 0 ){
-      printf("[Process %.2d] Total Sum : %d\n", rank, global_sum);
+      printf("[Process %.2d] Total Sum : %d\n", rank, total_sum);
     }
     printf("[Process %.2d] Ended \n", rank );
     MPI_Finalize();

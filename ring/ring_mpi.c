@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
     if (0 == rank) {
         message = 10;
-        printf("[Process %d] Sending message %d to process %d (%d processes in ring)\n",rank,message,next,size);
+        printf("[Process %d] Sending message %d to Process %d (%d processes in ring)\n",rank,message,next,size);
         MPI_Send(&message, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
     }
 
@@ -72,7 +72,7 @@ int main(int argc, char *argv[])
         printf("[Process %d] Message Received %d from Process  %d\n",rank,message,prev);
     }
 
-    printf("[Process %d] Ending \n",rank);
+    printf("[Process %d] Ended \n",rank);
     /* All done */
     MPI_Finalize();
     return 0;
