@@ -34,54 +34,46 @@ int main(int argc, char *argv[])
 
     if (0 == rank) {
         message = 10;
-        printf("    Process 0 sending message %d to process %d, tag %d (%d processes in ring)\n",   message, next, tag, size);
+        printf("[Process %d] Sending message %d to process %d (%d processes in ring)\n",rank,message,next,size);
         MPI_Send(&message, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
-        printf("    Process 0 sent to %d\n", next);
     }
 
-    /* Pass the message around the ring.  The exit mechanism works as
-       follows: the message (a positive integer) is passed around the
-       ring.  Each time it passes rank 0, it is decremented.  When
-       each processes receives a message containing a 0 value, it
-       passes the message on to the next process and then quits.  By
-       passing the 0 message first, every process gets the 0 message
-       and can quit normally. 
+    /* 
+        Pass the message around the ring.  The exit mechanism works as
+        follows: the message (a positive integer) is passed around the
+        ring.  Each time it passes rank 0, it is decremented.  When
+        each processes receives a message containing a 0 value, it
+        passes the message on to the next process and then quits.  By
+        passing the 0 message first, every process gets the 0 message
+        and can quit normally. 
 
-       CHALLENGE: Edit code to replace decrement at each node. */
+        CHALLENGE: Edit code to replace decrement at each node. 
+    */
 
     while (1) {
-        printf("    Waiting to receive message from %d in process %d \n",prev,rank);
-        MPI_Recv(&message, 1, MPI_INT, prev, tag, MPI_COMM_WORLD,
-                 MPI_STATUS_IGNORE);
-        printf("    Process %d received message from %d\n",rank,prev);
-
-        // if (0 == rank) {
-            --message;
-            printf("        Process %d decremented to value: %d\n",rank, message);
-        // }
-
-
-
-        if ( 0 == message ) {
-            printf("    Process %d exiting\n", rank);
+        printf("[Process %d] Waiting to receive message from Process %d \n",rank,prev);
+        MPI_Recv(&message, 1, MPI_INT, prev, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        printf("[Process %d] Message Received %d from Process  %d\n",rank,message,prev);
+        --message;
+        printf("[Process %d] Decrementing message to value: %d\n",rank,message);
+        printf("[Process %d] Sending message to Process %d  \n",rank,next);
+        MPI_Send(&message, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
+        if ( size > message  ) {
+            printf("[Process %d] Exiting from Loop\n", rank);
             break;
         }
-
-        printf("    Process %d send message to %d  \n",rank,next);
-        MPI_Send(&message, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
-
-
     }
 
     /* The last process does one extra send to process 0, which needs
-       to be received before the program can exit */
+    to be received before the program can exit */
+    if ((10 % size + 1) == rank) {
+        printf("[Process %d] Waiting to receive message from Process %d to end.\n",rank,prev);
+        MPI_Recv(&message, 1, MPI_INT, prev, tag, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
+        printf("[Process %d] Message Received %d from Process  %d\n",rank,message,prev);
+    }
 
-    // if (0 == rank) {
-    //     MPI_Recv(&message, 1, MPI_INT, prev, tag, MPI_COMM_WORLD,MPI_STATUS_IGNORE);
-    // }
-
+    printf("[Process %d] Ending \n",rank);
     /* All done */
-
     MPI_Finalize();
     return 0;
 }
