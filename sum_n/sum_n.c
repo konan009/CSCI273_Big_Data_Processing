@@ -54,7 +54,6 @@ int main(int argc, char *argv[])
    }
 
    printf("[Process %2d] Ended \n",rank);
-   /* All done */
    MPI_Finalize();
    return 0;
 }
