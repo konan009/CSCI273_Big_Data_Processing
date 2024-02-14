@@ -17,3 +17,5 @@ BEGIN BATCH
 APPLY BATCH;
 
 INSERT INTO store.users (id,name, email, mobile) VALUES (5,'test',{'one@test.com','two@test.com'},'123456789');
+
+SELECT * FROM store.users;
