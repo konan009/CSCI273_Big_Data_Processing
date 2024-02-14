@@ -29,27 +29,31 @@ int main(int argc, char *argv[])
     next = (rank + 1) % size;
     prev = (rank + size - 1) % size;
 
-    printf("[Process %.2d] Starting \n",rank);
+    printf("[Process %2d] Starting \n",rank);
     
     if (0 == rank) {
         int sum = rank;
-        printf("[Process %.2d] Sending sum %.2d to process %.2d \n",rank,sum,next);
+        printf("[Process %2d] Sending sum %2d to process %2d \n",rank,sum,next);
         MPI_Send(&sum, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
     }
 
-   printf("[Process %.2d] Waiting message from %.2d \n",rank,prev);
+   printf("[Process %2d] Waiting message from %2d \n",rank,prev);
    MPI_Recv(&sum, 1, MPI_INT, prev, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-   printf("[Process %.2d] Message received \n",rank);
+   printf("[Process %2d] Message received \n",rank);
    sum += rank;
-   printf("[Process %.2d] Message received %.2d\n",rank,sum);
+   printf("[Process %2d] Message received %2d\n",rank,sum);
 
-   if (0 != rank) {
-      printf("[Process %.2d] Sending sum %.2d to process %.2d \n",rank,sum,next);
+   if (0 == rank) {
+      // For process 0 
+      printf("[Process %2d] Waiting to get the total sum of the ranks  \n",rank);
+      MPI_Send(&sum, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
+      printf("[Process %2d] Total Sum is received, the sum of all rank is = %d \n",rank, sum);
+   }else{
+      printf("[Process %2d] Sending sum %2d to process %2d \n",rank,sum,next);
       MPI_Send(&sum, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
    }
 
-   printf("[Process %.2d] Sum %.2d\n",rank,sum);
-   printf("[Process %.2d] Ended \n",rank);
+   printf("[Process %2d] Ended \n",rank);
    /* All done */
    MPI_Finalize();
    return 0;
