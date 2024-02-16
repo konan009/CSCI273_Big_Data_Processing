@@ -1,7 +1,7 @@
 EXECS=execute clean
 MPICC?=mpicc
 MPIRUN?=mpirun
-CODE_FILENAME?=ring_mpi
+CODE_FILENAME?=207175_1_ring_mpi
 
 all: ${EXECS}
 

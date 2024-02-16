@@ -1,7 +1,7 @@
 EXECS=execute clean
 MPICC?=mpicc
 MPIRUN?=mpirun
-CODE_FILENAME?=approximatepi
+CODE_FILENAME?=207175_2_approximatepi
 all: ${EXECS}
 
 execute: 
