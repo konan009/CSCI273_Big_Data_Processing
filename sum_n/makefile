@@ -1,7 +1,7 @@
 EXECS=compile execute clean
 MPICC?=mpicc
 MPIRUN?=mpirun
-CODE_FILENAME?=reduce
+CODE_FILENAME?=sum_n
 all: ${EXECS}
 
 compile:
