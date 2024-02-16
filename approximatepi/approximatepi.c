@@ -1,44 +1,41 @@
 #include <stdio.h>
-#include "mpi.h"
+#include <mpi.h>
 
-int main(int argc, char *argv[])
+int main(argc,argv)
+int argc;
+char *argv[];
 {
-    int rank, size, next, prev, tag = 201;
-    MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-   printf("[Process %.2d] Starting \n",rank);
+   int rank, interval, size;
+   double delta_x,sum,x_mid,height,approx_pi,local_pi;
+   int ROOT_RANK = 0;
 
-   float delta_x = 1.0 / (float)size;
-   next = (rank + 1) % size;
-   prev = (rank + size - 1) % size;
-   float pi = 0.0;
-   if (0 == rank) {
-      float x_mid = (rank + 0.5) * delta_x;
-      float height = 4.0 / (1.0 + x_mid * x_mid);
-      pi += height;
-      printf("[Process %.2d] Sum : %.10f \n",rank,pi);
-      MPI_Send(&pi, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
-   }else{
-      printf("[Process %.2d] Waiting Message from Process %d \n",rank, prev);
-      MPI_Recv(&pi, 1, MPI_INT, prev, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      float x_mid = (rank + 0.5) * delta_x;
-      float height = 4.0 / (1.0 + x_mid * x_mid);
-      pi += height;
-      printf("[Process %.2d] Message received from Process %d %.10f \n",rank, prev, pi);
-      printf("[Process %.2d] Sending pi to process %.2d \n",rank,next);
-      MPI_Send(&pi, 1, MPI_INT, next, tag, MPI_COMM_WORLD);
+   MPI_Init(&argc, &argv);
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   MPI_Comm_size(MPI_COMM_WORLD, &size);
+   
+   if (rank == ROOT_RANK) {
+      printf("Enter interval number:");
+      fflush(stdout);  
+      scanf("%d",&interval);
+	}
+	MPI_Bcast(&interval, 1, MPI_INT, 0, MPI_COMM_WORLD);
+
+   delta_x = 1.0 / (double) interval;
+   sum = 0.0;
+   for (double i = rank + 1; i <= interval; i += size) {
+      x_mid = ((double)i - 0.5) * delta_x;
+      height = 4.0 / (1.0 + x_mid * x_mid);
+      sum += height;
+	}
+   local_pi = delta_x * sum;
+   printf("[Process %d] local_pi = %.16f \n", rank, local_pi);
+   MPI_Reduce(&local_pi, &approx_pi, 1, MPI_DOUBLE, MPI_SUM, ROOT_RANK, MPI_COMM_WORLD);
+   
+   if ( rank == ROOT_RANK ){
+      printf("[Process %d] Pi is ≈ %.16f \n", rank, approx_pi);
    }
 
-   if (0 == rank) {
-      printf("[Process %.2d] Waiting Message from Process %d \n",rank, prev);
-      MPI_Recv(&pi, 1, MPI_INT, prev, tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-      printf("[Process %.2d] Message received from Process %d \n",rank, prev);
-      pi *= delta_x;
-      printf("[Process %.2d] Answer is Pi ≈ %.10f \n",rank,pi);
-   }
-
-   printf("[Process %.2d] Ended \n",rank);
+   printf("[Process %d] Ended \n", rank );
    MPI_Finalize();
    return 0;
 }
