@@ -1,0 +1,13 @@
+data = LOAD 'gs://cs273bucket/amazon_reviews_us_Wireless_v1_00.tsv' AS (marketplace:chararray, customer_id:chararray, review_id:chararray, product_id:chararray, product_parent:chararray, product_title:chararray, product_category:chararray, star_rating:int, helpful_votes:int, total_votes:int, vine:chararray, verified_purchase:chararray, review_headline:chararray, review_body:chararray, review_date:chararray);
+filtered_data = FILTER data BY verified_purchase == 'Y' or verified_purchase == 'y' or verified_purchase == 'True' or verified_purchase == '1';
+
+customers = GROUP filtered_data BY customer_id;
+customer_sum_of_verified_purchases = FOREACH customers GENERATE CONCAT(' Employee ID: ',group) as employee_id, COUNT(filtered_data.verified_purchase) as record_no; 
+
+order_by_data = ORDER customer_sum_of_verified_purchases BY record_no DESC;
+
+customer_sum_of_verified_purchases = FOREACH order_by_data GENERATE employee_id, CONCAT('Total No. of Verified Purchases : ', (chararray)record_no) as record_no; 
+
+top_5_record = LIMIT customer_sum_of_verified_purchases 5;
+
+DUMP top_5_record;

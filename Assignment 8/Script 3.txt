@@ -1,0 +1,48 @@
+data = LOAD 'gs://cs273bucket/amazon_reviews_us_Wireless_v1_00.tsv' AS (marketplace:chararray, customer_id:chararray, review_id:chararray, product_id:chararray, product_parent:chararray, product_title:chararray, product_category:chararray, star_rating:int, helpful_votes:int, total_votes:int, vine:chararray, verified_purchase:chararray, review_headline:chararray, review_body:chararray, review_date:chararray);
+grouped_data = GROUP data BY product_id;
+
+group_rating = FOREACH grouped_data {
+    product_id = group ;
+    limit_record = LIMIT $1 1;
+    GENERATE product_id as product_id, FLATTEN(limit_record.product_title) as product_title, AVG($1.star_rating) AS average_rating, COUNT($1) AS record_count;
+}
+
+order_by_data = ORDER group_rating BY average_rating DESC, record_count DESC;
+limit_data = LIMIT order_by_data 10;
+left_join_result = JOIN limit_data BY product_id LEFT, data BY product_id; 
+
+left_join_result = FOREACH left_join_result GENERATE 
+    limit_data::product_id AS product_id,
+    limit_data::product_title AS product_title,
+    limit_data::average_rating AS rating,
+    limit_data::record_count AS record_count,
+    data::customer_id AS customer_id,
+    data::star_rating AS customer_ave_rating
+    ;
+
+
+grouped_data = GROUP left_join_result by (product_id,customer_id);
+
+result = FOREACH grouped_data {
+    group_id = group ;
+    values = $1 ;
+    average_customer_rating = AVG(values.customer_ave_rating);
+    first_sample = LIMIT values 1;
+    GENERATE FLATTEN(first_sample.product_id) as product_id, FLATTEN(first_sample.product_title) as product_title, FLATTEN(first_sample.record_count) as record_count, FLATTEN(first_sample.rating) as rating, FLATTEN(first_sample.customer_id) as customer_id, average_customer_rating as customer_ave_rating;
+}
+
+
+another_group = GROUP result BY product_id;
+
+result2 = FOREACH another_group {
+    order_by = ORDER result BY  customer_ave_rating DESC;
+    limit_record = LIMIT order_by 5;
+    processed_data = FOREACH limit_record GENERATE product_id, product_title,  record_count , rating, customer_id, customer_ave_rating;
+    GENERATE  FLATTEN(processed_data);
+}
+
+result2 = ORDER result2 BY  rating DESC, record_count DESC, product_id DESC;
+
+return_data = FOREACH result2 GENERATE CONCAT('Product ID :',product_id) as product_id,CONCAT('Product Title :',product_title) as product_title, CONCAT('Review Record No:', (chararray) record_count ) as record_count, CONCAT('Product Rating :',(chararray) rating) as rating, CONCAT('Customer Id :',customer_id) as customer_id, CONCAT(' Customer Rating :', (chararray)customer_ave_rating) as customer_ave_rating; 
+
+DUMP return_data;

@@ -1,0 +1,37 @@
+ADD JAR /home/mugaddan/apache-hive-2.3.9-bin/lib/hive-hcatalog-core-2.3.9.jar;
+
+DROP TABLE IF EXISTS kloutscore;
+CREATE EXTERNAL TABLE kloutscore ( 
+    interactions array<
+        struct<
+            demographic:struct<
+                gender:string
+            >,
+            interaction:struct<
+                author:struct<
+                    username:string, 
+                    name:string,
+                    id:string
+                >,
+                id:bigint,
+                created_at:string,
+                content:string
+            >,
+            klout:struct<
+                score:int
+            >,
+            twitter:struct<
+                created_at:string
+            >
+        >
+    >
+)
+ROW FORMAT SERDE 'org.apache.hive.hcatalog.data.JsonSerDe'
+LOCATION 'gs://cs273bucket/KloutScore';
+MSCK REPAIR TABLE kloutscore;
+
+ADD JAR /home/mugaddan/apache-hive-2.3.9-bin/lib/hive-hcatalog-core-2.3.9.jar;
+SELECT username, sum(score) as score FROM (SELECT data.interaction.author.username as username,data.klout.score as score From (SELECT explode(interactions) as data from kloutscore) B) A GROUP BY username SORT BY score DESC LIMIT 5;
+
+ADD JAR /home/mugaddan/apache-hive-2.3.9-bin/lib/hive-hcatalog-core-2.3.9.jar;
+SELECT * FROM (SELECT unix_timestamp(data.interaction.created_at,'EEE, dd MMM YYYY HH:mm:ss zzzzz') as created_at,data.interaction.author.username,data.interaction.content From (SELECT explode(interactions) as data from kloutscore) B) A SORT BY created_at ASC LIMIT 5;

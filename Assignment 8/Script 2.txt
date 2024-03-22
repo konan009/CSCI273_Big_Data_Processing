@@ -1,0 +1,6 @@
+data = LOAD 'gs://cs273bucket/amazon_reviews_us_Wireless_v1_00.tsv' AS (marketplace:chararray, customer_id:chararray, review_id:chararray, product_id:chararray, product_parent:chararray, product_title:chararray, product_category:chararray, star_rating:int, helpful_votes:int, total_votes:int, vine:chararray, verified_purchase:chararray, review_headline:chararray, review_body:chararray, review_date:chararray);
+products = GROUP data BY (product_title, product_parent);
+product_title_and_average_review = FOREACH products  GENERATE group.product_parent, group.product_title, AVG(data.star_rating) as average_rating; 
+order_by_data = ORDER product_title_and_average_review BY average_rating DESC;
+top_ten_record = LIMIT order_by_data 10;
+DUMP top_ten_record;
