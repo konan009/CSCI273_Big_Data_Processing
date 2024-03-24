@@ -1,0 +1,47 @@
+HBASE
+
+Hive is the most popular for Data Warehousing Tool
+Amadeus - Airline
+
+HBASE - Nosql in Hadoop
+
+
+Commands
+
+
+Hbase 2.5.8 version bin tar gz
+
+Prerequisite :
+Home variables Set up
+
+
+Wal configuration 
+
+Disable ipv6
+
+
+start-hbase.sh
+
+Note: It cab have problem starting Hbase
+
+You can add it later
+
+
+Two ways of doing HBase
+Normal Way:
+Zookeper Setup
+* select zookeper GCP Dataproc
+2 Worker 50 disk size
+
+
+Gcloud Command Line Way:
+Link on the google command line one with Zookeper Option
+
+
+
+google cloud scp hbaselive moving file to the VM
+
+
+Load data
+
+Using Hive and HBase at the same time
