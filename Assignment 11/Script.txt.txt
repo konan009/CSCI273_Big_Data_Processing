@@ -1,0 +1,33 @@
+create 'driver_details','cf'
+
+hadoop dfsadmin -safemode leave
+
+hbase org.apache.hadoop.hbase.mapreduce.ImportTsv -Dimporttsv.separator=, -Dimporttsv.columns=HBASE_ROW_KEY,cfdistance_feature,cfspeeding_feature driver_details gscs273bucketinputdriver_detailsv2.csv
+
+echo scan 'driver_details', {FILTER =(ValueFilter(=,'regexstring^3[1-9][4-9][0-9][1-9][0-9]{2,}$')), COLUMNS = 'cfspeeding_feature'}  hbase shell  grep row(s)  awk '{print $1  records}'
+
+CREATE EXTERNAL TABLE driver_details(
+    key INT,
+    distance_feature FLOAT,
+    speeding_feature INT
+) 
+STORED BY 'org.apache.hadoop.hive.hbase.HBaseStorageHandler'
+WITH SERDEPROPERTIES (
+    hbase.columns.mapping = key,cfdistance_feature,cfspeeding_feature
+)
+TBLPROPERTIES(hbase.table.name = driver_details, hbase.mapred.output.outputtable = driver_details);
+
+gcloud dataproc clusters create hive-clusters
+    --region=asia-southeast1 
+    --zone=asia-southeast1-b 
+    --image-version=1.5-debian10 
+    --master-machine-type=e2-standard-2 
+    --subnet=default 
+    --master-boot-disk-size=100gb 
+    --num-workers=3 
+    --worker-machine-type=e2-standard-2  
+    --worker-boot-disk-size=100gb 
+    --optional-components=HBASE,ZOOKEEPER,HIVE_WEBHCAT 
+
+beeline -u jdbchive2localhost10000default -n mugaddan@hive-clusters-m -n hadoop
+

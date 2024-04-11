@@ -1,0 +1,56 @@
+
+rm -rf metastore_db
+schematool -initSchema -dbType derby
+
+ADD JAR /home/mugaddan/apache-hive-2.3.9-bin/lib/hive-hcatalog-core-2.3.9.jar;
+DROP TABLE IF EXISTS amazon_reviews;
+CREATE EXTERNAL TABLE amazon_reviews ( 
+    marketplace string,
+    customer_id string,	
+    review_id string,
+    product_id string,	
+    product_parent string,	
+    product_title string,	
+    product_category string,	
+    star_rating int,	
+    helpful_votes int,	
+    total_votes int,	
+    vine string,	
+    verified_purchase string,	
+    review_headline string,	
+    review_body string,	
+    review_date string
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LOCATION 'hdfs:///user/mugaddan/input/';
+MSCK REPAIR TABLE amazon_reviews;
+
+
+ADD JAR gs://cs273bucket/hive-hcatalog-core-2.3.9.jar;
+DROP TABLE IF EXISTS amazon_reviews;
+CREATE EXTERNAL TABLE amazon_reviews (
+    marketplace string,
+    customer_id string,
+    review_id string,
+    product_id string,
+    product_parent string,
+    product_title string,
+    product_category string,
+    star_rating int,
+    helpful_votes int,
+    total_votes int,
+    vine string,
+    verified_purchase string,
+    review_headline string,
+    review_body string,
+    review_date string
+)
+ROW FORMAT DELIMITED
+FIELDS TERMINATED BY '\t'
+LOCATION 'gs://cs273bucket/input/';
+MSCK REPAIR TABLE amazon_reviews;
+
+SELECT product_id, SUBSTRING(product_title,1,60), product_category FROM (
+    SELECT product_id,  product_title, product_category, AVG(star_rating) as rating , COUNT(*) as no_record  from amazon_reviews GROUP BY product_id,product_title,product_category ORDER BY rating DESC,no_record DESC  LIMIT 10
+) A;
